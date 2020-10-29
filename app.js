@@ -1,62 +1,60 @@
 //jshint esversion:6
 
+// loads environment variables API_USERNAME and API_KEY from a .env file //
+require('dotenv').config();
+
 const express = require('express');
 const bodyParser = require('body-parser');
-//const req = require('request');
 
 const app = express();
 
-app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.urlencoded({
+  extended: true
+}));
 app.use(express.static('public'));
 
-app.get('/', (req,res) => {
+app.get('/', (req, res) => {
   res.sendFile(__dirname + '/signup.html');
 });
 
-app.post('/', (req,res) => {
+app.post('/', (req, res) => {
   const firstName = req.body.firstName;
   const lastName = req.body.lastName;
   const email = req.body.email;
   const https = require('https');
-
   const data = {
-    members: [
-      {
-        email_address: email,
-        status: 'subscribed',
-        merge_fields: {
-          FNAME: firstName,
-          LNAME: lastName
-        }
+    members: [{
+      email_address: email,
+      status: 'subscribed',
+      merge_fields: {
+        FNAME: firstName,
+        LNAME: lastName
       }
-    ]
+    }]
   };
 
+  const API_KEY = process.env.API_KEY;
+  const AUDIENCE_ID = process.env.AUDIENCE_ID;
   const jsonData = JSON.stringify(data);
-  const url = 'https://us2.api.mailchimp.com/3.0/lists/1769416370';
+  const url = 'https://' + API_KEY.slice(-3) + '.api.mailchimp.com/3.0/lists/' + AUDIENCE_ID;
   const options = {
     method: "POST",
-    auth: "enkeipy:6b0f47e1f5d28c4beb77c2dfcb855115-us2"
+    auth: 'anystring:' + API_KEY
   };
 
   const request = https.request(url, options, (response) => {
-
     if (response.statusCode === 200) {
       res.sendFile(__dirname + '/success.html');
     } else {
       res.sendFile(__dirname + '/failure.html');
     }
-
     response.on('data', (data) => {
       console.log(JSON.parse(data));
     });
-
   });
 
   request.write(jsonData);
   request.end();
-
-
 });
 
 app.post('/failure', (req, res) => {
