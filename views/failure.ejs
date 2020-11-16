@@ -1,0 +1,7 @@
+<%- include('partials/header') -%>
+<h1 class="display-4">Uh no!</h1>
+<p class="lead">There was a problem signing you up. Please try again!</p>
+  <form action="/failure" method="post">
+    <button class='btn btn-lg btn-warning' type="submit" name="button">Try Again</button>
+  </form>
+<%- include('partials/footer') -%>
